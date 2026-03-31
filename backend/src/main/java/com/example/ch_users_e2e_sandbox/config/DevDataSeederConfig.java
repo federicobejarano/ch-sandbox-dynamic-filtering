@@ -1,5 +1,6 @@
 package com.example.ch_users_e2e_sandbox.config;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import com.example.ch_users_e2e_sandbox.entity.LineageType;
 import com.example.ch_users_e2e_sandbox.entity.User;
 import com.example.ch_users_e2e_sandbox.repository.UserRepository;
 
@@ -33,17 +35,23 @@ public class DevDataSeederConfig {
                     new User(
                             "SOFIA KALOGERAKIS",
                             "sofia.kalogerakis@helenica.org",
-                            "standard",
+                            LineageType.DESCENDANT,
+                            "Resistencia",
+                            LocalDate.of(1992, 4, 18),
                             LocalDateTime.of(2026, 3, 1, 10, 0)),
                     new User(
                             "LI",
                             "li.garcia@example.com",
-                            "premium",
+                            LineageType.PHILHELLENE,
+                            "Corrientes",
+                            LocalDate.of(2001, 9, 2),
                             LocalDateTime.of(2026, 3, 5, 14, 30)),
                     new User(
                             "ANA MUÑOZ",
                             "ana.munoz@subdomain.example.com",
-                            "honorary",
+                            LineageType.DESCENDANT,
+                            "Buenos Aires",
+                            LocalDate.of(1968, 11, 7),
                             LocalDateTime.of(2026, 3, 10, 9, 15)));
 
             userRepository.saveAll(seedUsers);

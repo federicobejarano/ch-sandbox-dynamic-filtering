@@ -19,7 +19,7 @@ public record UserRegistrationResponse(
                 entity.getId(),
                 entity.getName(),
                 entity.getEmail(),
-                entity.getMembershipType(),
+                entity.getLineageType().name(),
                 entity.getCreatedAt());
     }
 }
