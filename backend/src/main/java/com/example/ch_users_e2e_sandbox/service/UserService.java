@@ -6,13 +6,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import com.example.ch_users_e2e_sandbox.dto.UserSummaryResponse;
 import com.example.ch_users_e2e_sandbox.dto.UserRegistrationRequest;
 import com.example.ch_users_e2e_sandbox.dto.UserRegistrationResponse;
 import com.example.ch_users_e2e_sandbox.entity.LineageType;
 import com.example.ch_users_e2e_sandbox.entity.User;
 import com.example.ch_users_e2e_sandbox.repository.UserRepository;
+import com.example.ch_users_e2e_sandbox.specification.UserSpecification;
 
 @Service
 public class UserService {
@@ -42,7 +47,28 @@ public class UserService {
                 .toList();
     }
 
+    public Page<UserSummaryResponse> searchUsers(
+            String name,
+            String location,
+            LineageType lineageType,
+            Integer minAge,
+            Integer maxAge,
+            Pageable pageable) {
+        Objects.requireNonNull(pageable, "Pageable no puede ser null.");
+
+        Specification<User> specification = Specification.where((Specification<User>) null)
+                .and(UserSpecification.hasNameContaining(name))
+                .and(UserSpecification.hasLocation(location))
+                .and(UserSpecification.hasLineageType(lineageType))
+                .and(UserSpecification.hasAgeBetween(minAge, maxAge));
+
+        return userRepository.findAll(specification, pageable)
+                .map(UserSummaryResponse::fromEntity);
+    }
+
     private User mapToEntity(UserRegistrationRequest request) {
+        // El contrato POST todavia no expone location/birthDate; se mantienen defaults
+        // temporales hasta la actividad dedicada a la evolucion de los DTOs.
         return new User(
                 toUpperCase(request.name()),
                 request.email(),
