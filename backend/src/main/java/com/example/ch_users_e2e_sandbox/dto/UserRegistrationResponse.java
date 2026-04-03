@@ -1,5 +1,6 @@
 package com.example.ch_users_e2e_sandbox.dto;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -9,7 +10,9 @@ public record UserRegistrationResponse(
         Long id,
         String name,
         String email,
-        String membershipType,
+        String lineageType,
+        String location,
+        LocalDate birthDate,
         LocalDateTime createdAt) {
 
     public static UserRegistrationResponse fromEntity(User entity) {
@@ -20,6 +23,8 @@ public record UserRegistrationResponse(
                 entity.getName(),
                 entity.getEmail(),
                 entity.getLineageType().name(),
+                entity.getLocation(),
+                entity.getBirthDate(),
                 entity.getCreatedAt());
     }
 }

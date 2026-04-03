@@ -33,6 +33,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ValidationErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+        ValidationErrorResponse errorResponse = new ValidationErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Error de validacion.",
+                Map.of("lineageType", ex.getMessage()));
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ValidationErrorResponse> handleUnexpectedErrors(Exception ex) {
         ValidationErrorResponse errorResponse = new ValidationErrorResponse(

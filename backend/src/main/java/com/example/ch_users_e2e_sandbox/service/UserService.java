@@ -1,6 +1,5 @@
 package com.example.ch_users_e2e_sandbox.service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
@@ -21,9 +20,6 @@ import com.example.ch_users_e2e_sandbox.specification.UserSpecification;
 
 @Service
 public class UserService {
-
-    private static final String LEGACY_DEFAULT_LOCATION = "UNSPECIFIED";
-    private static final LocalDate LEGACY_DEFAULT_BIRTH_DATE = LocalDate.of(1970, 1, 1);
 
     private final UserRepository userRepository;
 
@@ -67,26 +63,24 @@ public class UserService {
     }
 
     private User mapToEntity(UserRegistrationRequest request) {
-        // El contrato POST todavia no expone location/birthDate; se mantienen defaults
-        // temporales hasta la actividad dedicada a la evolucion de los DTOs.
         return new User(
-                toUpperCase(request.name()),
+                request.name(),
                 request.email(),
-                resolveLineageType(request.membershipType()),
-                LEGACY_DEFAULT_LOCATION,
-                LEGACY_DEFAULT_BIRTH_DATE,
+                resolveLineageType(request.lineageType()),
+                request.location(),
+                request.birthDate(),
                 currentTimestamp());
     }
 
-    private LineageType resolveLineageType(String membershipType) {
-        String normalizedValue = toUpperCase(membershipType);
+    private LineageType resolveLineageType(String lineageType) {
+        String normalizedValue = toUpperCase(lineageType);
 
-        return switch (normalizedValue) {
-            case "DESCENDANT", "STANDARD", "PREMIUM" -> LineageType.DESCENDANT;
-            case "PHILHELLENE", "HONORARY" -> LineageType.PHILHELLENE;
-            default -> throw new IllegalArgumentException(
-                    "No se pudo convertir membershipType a lineageType: " + membershipType);
-        };
+        try {
+            return LineageType.valueOf(normalizedValue);
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException(
+                    "El valor de lineageType es invalido. Valores permitidos: DESCENDANT, PHILHELLENE.");
+        }
     }
 
     private String toUpperCase(String value) {
