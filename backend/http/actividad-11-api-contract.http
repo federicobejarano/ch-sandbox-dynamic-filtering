@@ -1,0 +1,73 @@
+### Actividad 11 - Validacion del contrato API con HTTP Client
+### Base URL
+@baseUrl = http://localhost:8080
+
+# Estructura real observada para GET /api/users:
+# {
+#   "content": [UserSummaryResponse...],
+#   "pageable": {
+#     "pageNumber": 0,
+#     "pageSize": 10,
+#     "offset": 0,
+#     "paged": true,
+#     "unpaged": false,
+#     "sort": { "sorted": true, "unsorted": false, "empty": false }
+#   },
+#   "totalElements": 24,
+#   "totalPages": 3,
+#   "number": 0,
+#   "size": 10,
+#   "sort": { "sorted": true, "unsorted": false, "empty": false },
+#   "first": true,
+#   "last": false,
+#   "numberOfElements": 10,
+#   "empty": false
+# }
+#
+# Verificaciones empiricas realizadas:
+# - `name=papa` retorna: ANDRES PAPAS, NICOLAS PAPADOPOULOS, VALERIA PAPATHANASIOU.
+# - `minAge=18&maxAge=18` incluye: ELENA PAPPAS y TOMAS COSTA.
+# - `maxAge=17` excluye a ambos y deja solo menores de 18 en el seed actual.
+# - `lineageType=INVALID` responde 400 con fieldErrors.lineageType.
+
+### Baseline sin filtros
+GET {{baseUrl}}/api/users
+
+### Filtro por enum
+GET {{baseUrl}}/api/users?lineageType=DESCENDANT
+
+### Filtro por texto case-insensitive
+GET {{baseUrl}}/api/users?name=papa
+
+### Filtro por rango de edad
+GET {{baseUrl}}/api/users?minAge=18&maxAge=30
+
+### Combinacion de filtros
+GET {{baseUrl}}/api/users?location=Resistencia&lineageType=DESCENDANT&minAge=18&page=0&size=10&sort=name,asc
+
+### Paginacion explicita - pagina 0
+GET {{baseUrl}}/api/users?page=0&size=10
+
+### Paginacion explicita - pagina 1
+GET {{baseUrl}}/api/users?page=1&size=10
+
+### Paginacion explicita - pagina 2
+GET {{baseUrl}}/api/users?page=2&size=10
+
+### Sort dinamico
+GET {{baseUrl}}/api/users?sort=birthDate,desc
+
+### Enum invalido
+GET {{baseUrl}}/api/users?lineageType=INVALID
+
+### POST de referencia para validar el contrato de registro vigente
+POST {{baseUrl}}/api/users
+Content-Type: application/json
+
+{
+  "name": "Demo Papadakis",
+  "email": "demo.papadakis@example.com",
+  "lineageType": "DESCENDANT",
+  "location": "Resistencia",
+  "birthDate": "1998-04-02"
+}

@@ -52,11 +52,23 @@ public class UserService {
             Pageable pageable) {
         Objects.requireNonNull(pageable, "Pageable no puede ser null.");
 
-        Specification<User> specification = Specification.where((Specification<User>) null)
-                .and(UserSpecification.hasNameContaining(name))
-                .and(UserSpecification.hasLocation(location))
-                .and(UserSpecification.hasLineageType(lineageType))
-                .and(UserSpecification.hasAgeBetween(minAge, maxAge));
+        Specification<User> specification = (root, query, criteriaBuilder) -> criteriaBuilder.conjunction();
+
+        if (name != null && !name.isBlank()) {
+            specification = specification.and(UserSpecification.hasNameContaining(name));
+        }
+
+        if (location != null && !location.isBlank()) {
+            specification = specification.and(UserSpecification.hasLocation(location));
+        }
+
+        if (lineageType != null) {
+            specification = specification.and(UserSpecification.hasLineageType(lineageType));
+        }
+
+        if (minAge != null || maxAge != null) {
+            specification = specification.and(UserSpecification.hasAgeBetween(minAge, maxAge));
+        }
 
         return userRepository.findAll(specification, pageable)
                 .map(UserSummaryResponse::fromEntity);
