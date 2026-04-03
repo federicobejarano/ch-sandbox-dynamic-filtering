@@ -1,18 +1,23 @@
 package com.example.ch_users_e2e_sandbox.controller;
 
-import java.util.List;
 import java.util.Objects;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.ch_users_e2e_sandbox.dto.UserRegistrationRequest;
 import com.example.ch_users_e2e_sandbox.dto.UserRegistrationResponse;
+import com.example.ch_users_e2e_sandbox.dto.UserSummaryResponse;
+import com.example.ch_users_e2e_sandbox.entity.LineageType;
 import com.example.ch_users_e2e_sandbox.service.UserService;
 
 import jakarta.validation.Valid;
@@ -34,8 +39,13 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserRegistrationResponse>> getAllUsers() {
-        List<UserRegistrationResponse> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
+    public Page<UserSummaryResponse> getUsers(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) LineageType lineageType,
+            @RequestParam(required = false) Integer minAge,
+            @RequestParam(required = false) Integer maxAge,
+            @PageableDefault(size = 10, sort = "name") Pageable pageable) {
+        return userService.searchUsers(name, location, lineageType, minAge, maxAge, pageable);
     }
 }
