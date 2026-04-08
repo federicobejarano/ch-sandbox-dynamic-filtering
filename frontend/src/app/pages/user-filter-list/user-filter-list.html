@@ -1,1 +1,131 @@
-<section class="user-filter-list-placeholder"></section>
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button ionRouterLink="/register" defaultHref="/register" />
+    </ion-buttons>
+
+    <ion-title>Buscar usuarios</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="filterForm" class="filter-form">
+    <ion-searchbar
+      formControlName="name"
+      placeholder="Buscar por nombre"
+      show-clear-button="focus"
+    />
+
+    <ion-item lines="inset">
+      <ion-select
+        formControlName="lineageType"
+        label="Linaje"
+        labelPlacement="stacked"
+        interface="popover"
+      >
+        @for (option of lineageOptions; track option.value) {
+          <ion-select-option [value]="option.value">
+            {{ option.label }}
+          </ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+
+    <ion-item lines="inset">
+      <ion-select
+        formControlName="location"
+        label="Ubicación"
+        labelPlacement="stacked"
+        interface="popover"
+      >
+        @for (option of locationOptions; track option.value) {
+          <ion-select-option [value]="option.value">
+            {{ option.label }}
+          </ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+
+    <div class="age-range">
+      <ion-item lines="inset">
+        <ion-input
+          formControlName="minAge"
+          type="number"
+          label="Edad mínima"
+          labelPlacement="stacked"
+          inputmode="numeric"
+          min="0"
+        />
+      </ion-item>
+
+      <ion-item lines="inset">
+        <ion-input
+          formControlName="maxAge"
+          type="number"
+          label="Edad máxima"
+          labelPlacement="stacked"
+          inputmode="numeric"
+          min="0"
+        />
+      </ion-item>
+    </div>
+  </form>
+
+  <ion-text color="medium">
+    <p class="results-summary">
+      Mostrando {{ users.length }} de {{ totalElements }} resultados
+    </p>
+  </ion-text>
+
+  @if (isLoading) {
+    <ion-list role="feed" inset="true">
+      @for (row of skeletonRows; track row) {
+        <ion-item role="article" lines="none" class="user-item">
+          <ion-label>
+            <h2 class="skeleton-title">
+              <ion-skeleton-text animated style="width: 68%" />
+            </h2>
+            <p>
+              <ion-skeleton-text animated style="width: 88%" />
+            </p>
+            <p>
+              <ion-skeleton-text animated style="width: 46%" />
+            </p>
+          </ion-label>
+        </ion-item>
+      }
+    </ion-list>
+  } @else {
+    <ion-list role="feed" inset="true" class="results-list">
+      @for (user of users; track user.id) {
+        <ion-item role="article" lines="none" class="user-item">
+          <ion-label>
+            <div class="user-heading">
+              <h2>{{ user.name }}</h2>
+              <ion-badge [color]="getLineageColor(user.lineageType)">
+                {{ getLineageLabel(user.lineageType) }}
+              </ion-badge>
+            </div>
+
+            <p>{{ user.email }}</p>
+            <p>{{ user.location }} · {{ getAgeLabel(user.birthDate) }}</p>
+          </ion-label>
+        </ion-item>
+      } @empty {
+        <ion-item role="article" lines="none" class="empty-state">
+          <ion-label class="ion-text-center">
+            <h2>No se encontraron usuarios</h2>
+            <p>Ajustá los filtros para ampliar los resultados.</p>
+          </ion-label>
+        </ion-item>
+      }
+    </ion-list>
+  }
+
+  <ion-infinite-scroll
+    (ionInfinite)="onInfiniteScroll($event)"
+    [disabled]="isLastPage || isLoading || users.length === 0"
+  >
+    <ion-infinite-scroll-content loadingText="Cargando más usuarios..." />
+  </ion-infinite-scroll>
+</ion-content>

@@ -1,3 +1,57 @@
-.user-filter-list-placeholder {
-  display: block;
+.filter-form {
+  display: grid;
+  gap: 12px;
+}
+
+.age-range {
+  display: grid;
+  gap: 12px;
+}
+
+.results-summary {
+  margin: 16px 4px 12px;
+  font-size: 0.95rem;
+}
+
+.results-list {
+  margin-bottom: 12px;
+}
+
+.user-item {
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+}
+
+.user-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.user-heading h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.user-item p {
+  margin: 4px 0 0;
+  color: var(--ion-color-medium);
+}
+
+.empty-state {
+  min-height: 140px;
+}
+
+.skeleton-title,
+.skeleton-title ion-skeleton-text {
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .age-range {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

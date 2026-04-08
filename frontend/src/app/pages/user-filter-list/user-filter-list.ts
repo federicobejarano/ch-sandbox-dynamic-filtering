@@ -2,6 +2,26 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import {
+  IonBackButton,
+  IonBadge,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonSearchbar,
+  IonSelect,
+  IonSelectOption,
+  IonSkeletonText,
+  IonText,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/angular/standalone';
+import {
   debounceTime,
   distinctUntilChanged,
   map,
@@ -20,18 +40,56 @@ interface InfiniteScrollTarget extends EventTarget {
   disabled: boolean;
 }
 
+type LineageBadgeColor = 'primary' | 'secondary' | 'tertiary' | 'medium';
+
 @Component({
   selector: 'app-user-filter-list',
   standalone: true,
   templateUrl: './user-filter-list.html',
   styleUrl: './user-filter-list.css',
-  imports: [ReactiveFormsModule],
+  imports: [
+    ReactiveFormsModule,
+    IonBackButton,
+    IonBadge,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonList,
+    IonSearchbar,
+    IonSelect,
+    IonSelectOption,
+    IonSkeletonText,
+    IonText,
+    IonTitle,
+    IonToolbar,
+  ],
 })
 export class UserFilterListComponent implements OnInit {
   private static readonly PAGE_SIZE = 10;
 
   private readonly userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
+
+  readonly lineageOptions = [
+    { value: '', label: 'Todos' },
+    { value: 'DESCENDANT', label: 'Descendiente' },
+    { value: 'PHILHELLENE', label: 'Filoheleno' },
+  ];
+
+  readonly locationOptions = [
+    { value: '', label: 'Todas' },
+    { value: 'Resistencia', label: 'Resistencia' },
+    { value: 'Corrientes', label: 'Corrientes' },
+    { value: 'Buenos Aires', label: 'Buenos Aires' },
+    { value: 'Atenas', label: 'Atenas' },
+  ];
+
+  readonly skeletonRows = [0, 1, 2, 3];
 
   readonly filterForm = new FormGroup({
     name: new FormControl('', { nonNullable: true }),
@@ -119,12 +177,57 @@ export class UserFilterListComponent implements OnInit {
     };
   }
 
-  private normalizeAge(value: number | null): number | null {
-    if (value === null || Number.isNaN(value)) {
+  getLineageLabel(lineageType: string): string {
+    return this.lineageOptions.find((option) => option.value === lineageType)?.label
+      ?? lineageType;
+  }
+
+  getLineageColor(lineageType: string): LineageBadgeColor {
+    if (lineageType === 'DESCENDANT') {
+      return 'primary';
+    }
+
+    if (lineageType === 'PHILHELLENE') {
+      return 'tertiary';
+    }
+
+    return 'medium';
+  }
+
+  getAgeLabel(birthDate: string): string {
+    const birth = new Date(`${birthDate}T00:00:00`);
+
+    if (Number.isNaN(birth.getTime())) {
+      return 'Edad desconocida';
+    }
+
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const currentMonth = today.getMonth();
+    const birthMonth = birth.getMonth();
+
+    if (
+      currentMonth < birthMonth
+      || (currentMonth === birthMonth && today.getDate() < birth.getDate())
+    ) {
+      age -= 1;
+    }
+
+    return `${age} años`;
+  }
+
+  private normalizeAge(value: number | string | null | undefined): number | null {
+    if (value === null || value === undefined || value === '') {
       return null;
     }
 
-    return value;
+    const normalizedValue = typeof value === 'number' ? value : Number(value);
+
+    if (Number.isNaN(normalizedValue)) {
+      return null;
+    }
+
+    return normalizedValue;
   }
 
   private resetState(): void {
