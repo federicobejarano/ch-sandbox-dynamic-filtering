@@ -24,6 +24,7 @@ import {
 import {
   debounceTime,
   distinctUntilChanged,
+  finalize,
   map,
   startWith,
   switchMap,
@@ -102,6 +103,7 @@ export class UserFilterListComponent implements OnInit {
   users: UserSummary[] = [];
   currentPage = 0;
   isLoading = true;
+  isLoadingNextPage = false;
   isLastPage = false;
   totalElements = 0;
 
@@ -136,14 +138,15 @@ export class UserFilterListComponent implements OnInit {
   onInfiniteScroll(event: Event): void {
     const infiniteScroll = event.target as InfiniteScrollTarget | null;
 
-    if (!infiniteScroll || this.isLastPage || this.isLoading) {
+    if (!infiniteScroll || this.isLastPage || this.isLoading || this.isLoadingNextPage) {
       if (infiniteScroll) {
-        infiniteScroll.disabled = this.isLastPage;
+        infiniteScroll.disabled = this.isLastPage || this.isLoadingNextPage;
         void infiniteScroll.complete();
       }
       return;
     }
 
+    this.isLoadingNextPage = true;
     this.currentPage += 1;
 
     this.userService
@@ -152,15 +155,19 @@ export class UserFilterListComponent implements OnInit {
         this.currentPage,
         UserFilterListComponent.PAGE_SIZE,
       )
+      .pipe(
+        finalize(() => {
+          this.isLoadingNextPage = false;
+          void infiniteScroll.complete();
+        }),
+      )
       .subscribe({
         next: (page) => {
           this.appendResults(page);
           infiniteScroll.disabled = page.last;
-          void infiniteScroll.complete();
         },
         error: () => {
           this.currentPage = Math.max(this.currentPage - 1, 0);
-          void infiniteScroll.complete();
         },
       });
   }
@@ -236,6 +243,7 @@ export class UserFilterListComponent implements OnInit {
     this.totalElements = 0;
     this.isLastPage = false;
     this.isLoading = true;
+    this.isLoadingNextPage = false;
   }
 
   private replaceResults(page: PageResponse<UserSummary>): void {

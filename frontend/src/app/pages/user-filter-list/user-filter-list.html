@@ -124,7 +124,7 @@
 
   <ion-infinite-scroll
     (ionInfinite)="onInfiniteScroll($event)"
-    [disabled]="isLastPage || isLoading || users.length === 0"
+    [disabled]="isLastPage || isLoading || isLoadingNextPage || users.length === 0"
   >
     <ion-infinite-scroll-content loadingText="Cargando más usuarios..." />
   </ion-infinite-scroll>
