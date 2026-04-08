@@ -24,9 +24,9 @@
                     <ion-badge
                         slot="end"
                         class="membership-badge"
-                        [color]="membershipUiMap[user.membershipType]?.color ?? 'medium'"
+                        [color]="membershipUiMap[user.membershipType ?? '']?.color ?? 'medium'"
                     >
-                        {{ membershipUiMap[user.membershipType]?.label ?? user.membershipType }}
+                        {{ membershipUiMap[user.membershipType ?? '']?.label ?? user.membershipType }}
                     </ion-badge>
                 </ion-item>
             } @empty {
